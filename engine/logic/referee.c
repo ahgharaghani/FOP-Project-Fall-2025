@@ -24,11 +24,6 @@
  * - 0 if no goal has occurred.
  */
 static int goal(float x, float y) {
-    // TODO 1: implement this function
-        // You must check for and print these EXACT logs:
-        // printf("GOAL! Right net hit at x:%.2f, y=%.2f\n", x, y);
-        // printf("GOAL! Left net hit at x:%.2f, y=%.2f\n", x, y);
-
     const float right_goal_x1 = CENTER_X + (PITCH_W/2) + BALL_RADIUS;
     const float right_goal_x2 = right_goal_x1 + GOAL_WIDTH - BALL_RADIUS;
 
@@ -62,10 +57,6 @@ static int goal(float x, float y) {
  * @return true if the ball is fully out of bounds, false otherwise.
  */
 static bool out(float x, float y) {
-    // TODO 2: implement this function
-        // You must check for and print this EXACT log:
-        // printf("Ball is out: x=%.2f, y=%.2f\n", x, y);
-
     const float pitch_x1 = PITCH_X;
     const float pitch_x2 = PITCH_X + PITCH_W;
     const float pitch_y1 = PITCH_Y;
@@ -102,8 +93,6 @@ static bool out(float x, float y) {
  * - 0 if no event occurred.
  */
 int referee(struct Scene* scene) {
-
-    // TODO 3: implement this function
     struct Ball *ball = scene->ball;
     struct Vec2 ball_position = ball->position;
     int goal_state = goal(ball_position.x, ball_position.y);
@@ -135,10 +124,6 @@ int referee(struct Scene* scene) {
  * @param talents The talent structure to validate.
  */
 void verify_talents(struct Talents talents) {
-    // TODO 4: implement this function
-        // You must check for and print this EXACT error:    
-            // printf("ERROR: Invalid talents! Values: defence=%d, agility=%d, dribbling=%d, shooting=%d, sum=%d\n",
-            //    talents.defence, talents.agility, talents.dribbling, talents.shooting, sum);
     int defence_check = (talents.defence >= 1 && talents.defence <= MAX_TALENT_PER_SKILL);
     int agility_check = (talents.agility >= 1 && talents.agility <= MAX_TALENT_PER_SKILL);
     int dribbling_check = (talents.dribbling >= 1 && talents.dribbling <= MAX_TALENT_PER_SKILL);
@@ -170,7 +155,6 @@ void verify_talents(struct Talents talents) {
  * @param scene  Pointer to the current game scene.
  */
 void verify_state(struct Player *player, struct Scene *scene) {
-
     // TODO 5: implement this function
         // You must check for and print this EXACT error:
         // printf(" ERROR: the ball is not yours, you can't shoot! (team %d, player %d)\n",
