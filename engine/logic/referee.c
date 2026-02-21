@@ -65,6 +65,16 @@ static bool out(float x, float y) {
     // TODO 2: implement this function
         // You must check for and print this EXACT log:
         // printf("Ball is out: x=%.2f, y=%.2f\n", x, y);
+
+    const float pitch_x1 = PITCH_X;
+    const float pitch_x2 = PITCH_X + PITCH_W;
+    const float pitch_y1 = PITCH_Y;
+    const float pitch_y2 = PITCH_Y + PITCH_H;
+
+    if (!(x <= pitch_x2 && x >= pitch_x1 && y >= pitch_y1 && y <= pitch_y2)) {
+        printf("Ball is out: x=%.2f, y=%.2f\n", x, y);
+        return true;
+    }
     
     return false; // for now
 }
