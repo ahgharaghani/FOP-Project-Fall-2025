@@ -158,7 +158,7 @@ void verify_state(struct Player *player, struct Scene *scene) {
     if (player->state == SHOOTING && !memcmp(player, scene->ball->possessor, sizeof(Player))){
         printf(" ERROR: the ball is not yours, you can't shoot! (team %d, player %d)\n", 
             player->team, player->kit);
-        player->state = MOVING;
+        player->state = IDLE;
     }
 }
 
