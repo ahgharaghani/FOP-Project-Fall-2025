@@ -104,6 +104,17 @@ static bool out(float x, float y) {
 int referee(struct Scene* scene) {
 
     // TODO 3: implement this function
+    struct Ball *ball = scene->ball;
+    struct Vec2 ball_position = ball->position;
+    int goal_state = goal(ball_position.x, ball_position.y);
+    if (goal_state) {
+        return GOAL;
+    }
+
+    bool out_state = out(ball_position.x, ball_position.y);
+    if (out_state) {
+        return OUT;
+    }
 
     return PLAY_ON;   // for now
 }
