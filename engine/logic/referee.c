@@ -208,9 +208,22 @@ void verify_movement(struct Player *player) {
  * @param kickoff True if the shot occurs during kickoff.
  */
 void verify_shoot(struct Ball *ball, bool kickoff) {
-    // TODO 7: implement this function
-        // You must check for and print these EXACT errors:
-        // printf(" ERROR: Demanding to shoot too fast in dimension x! (team %d, player %d)\n", player->team, player->kit);
-        // printf(" ERROR: Demanding to shoot too fast in dimension y! (team %d, player %d)\n", player->team, player->kit);
-        // printf(" ERROR: You must pass to your own half! (team %d, player %d)\n", player->team, player->kit);
+    Player *player = ball->possessor;
+    float max_velocity = ball->possessor->talents.agility * MAX_BALL_VELOCITY;
+
+    if (ball->velocity.x > max_velocity) {
+        printf(" ERROR: Demanding to shoot too fast in dimension x! (team %d, player %d)\n", player->team, player->kit);
+        Vec2 velocity = {.x = max_velocity, .y = ball->velocity.y};
+        ball->velocity = velocity;
+    }
+
+    if (ball->velocity.y > max_velocity) {
+        printf(" ERROR: Demanding to shoot too fast in dimension y! (team %d, player %d)\n", player->team, player->kit);
+        Vec2 velocity = {.x = ball->velocity.x, .y = max_velocity};
+        ball->velocity = velocity;
+    }
+
+    if ((ball->velocity.x < 0 && player->team == 2) || (ball->velocity.x > 0 && player->team == 1)) {
+        printf(" ERROR: You must pass to your own half! (team %d, player %d)\n", player->team, player->kit);
+    }
 }
