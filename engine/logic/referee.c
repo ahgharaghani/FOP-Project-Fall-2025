@@ -155,10 +155,11 @@ void verify_talents(struct Talents talents) {
  * @param scene  Pointer to the current game scene.
  */
 void verify_state(struct Player *player, struct Scene *scene) {
-    // TODO 5: implement this function
-        // You must check for and print this EXACT error:
-        // printf(" ERROR: the ball is not yours, you can't shoot! (team %d, player %d)\n",
-        //         player->team, player->kit);
+    if (player->state == SHOOTING && !memcmp(player, scene->ball->possessor, sizeof(Player))){
+        printf(" ERROR: the ball is not yours, you can't shoot! (team %d, player %d)\n", 
+            player->team, player->kit);
+        player->state = MOVING;
+    }
 }
 
 /**
@@ -199,7 +200,6 @@ void verify_movement(struct Player *player) {
  * @param kickoff True if the shot occurs during kickoff.
  */
 void verify_shoot(struct Ball *ball, bool kickoff) {
-
     // TODO 7: implement this function
         // You must check for and print these EXACT errors:
         // printf(" ERROR: Demanding to shoot too fast in dimension x! (team %d, player %d)\n", player->team, player->kit);
