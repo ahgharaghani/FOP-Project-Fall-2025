@@ -176,11 +176,19 @@ void verify_state(struct Player *player, struct Scene *scene) {
  * @param player Pointer to the player whose movement is being verified.
  */
 void verify_movement(struct Player *player) {
-    
-    // TODO 6: implement this function
-        // You must check for and print these EXACT errors:
-        // printf(" ERROR: Demanding to run too fast in dimension x! (team %d, player %d)\n", player->team, player->kit);
-        // printf(" ERROR: Demanding to run too fast in dimension y! (team %d, player %d)\n", player->team, player->kit);
+    float max_velocity = player->talents.agility * MAX_PLAYER_VELOCITY;
+
+    if (player->velocity.x > max_velocity) {
+        printf(" ERROR: Demanding to run too fast in dimension x! (team %d, player %d)\n", player->team, player->kit);
+        Vec2 velocity = {.x = max_velocity, .y = player->velocity.y};
+        player->velocity = velocity;
+    }
+
+    if (player->velocity.y > max_velocity) {
+        printf(" ERROR: Demanding to run too fast in dimension y! (team %d, player %d)\n", player->team, player->kit);
+        Vec2 velocity = {.x = player->velocity.x, .y = max_velocity};
+        player->velocity = velocity;
+    }
 }
 
 /**
