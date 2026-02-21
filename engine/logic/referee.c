@@ -29,6 +29,23 @@ static int goal(float x, float y) {
         // printf("GOAL! Right net hit at x:%.2f, y=%.2f\n", x, y);
         // printf("GOAL! Left net hit at x:%.2f, y=%.2f\n", x, y);
 
+    const float right_goal_x1 = CENTER_X + (PITCH_W/2) + BALL_RADIUS;
+    const float right_goal_x2 = right_goal_x1 + GOAL_WIDTH - BALL_RADIUS;
+
+    const float left_goal_x1 = CENTER_X - (PITCH_W/2) - GOAL_WIDTH - BALL_RADIUS;
+    const float left_goal_x2 = left_goal_x1 + GOAL_WIDTH + BALL_RADIUS;
+
+    const float goal_y1 = CENTER_Y - (GOAL_HEIGHT/2) + BALL_RADIUS;
+    const float goal_y2 = CENTER_Y + (GOAL_HEIGHT/2) - BALL_RADIUS;
+
+    if (x <= right_goal_x1 && x >= right_goal_x2 && y <= goal_y1 && y >= goal_y2) {
+        printf("GOAL! Right net hit at x:%.2f, y=%.2f\n", x, y);
+        return 1;
+    } else if (x >= left_goal_x1 && x <= left_goal_x2 && y <= goal_y1 && y >= goal_y2) {
+        printf("GOAL! Left net hit at x:%.2f, y=%.2f\n", x, y);
+        return 2;
+    }
+    
     return 0; // for now
 }
 
