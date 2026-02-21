@@ -139,6 +139,19 @@ void verify_talents(struct Talents talents) {
         // You must check for and print this EXACT error:    
             // printf("ERROR: Invalid talents! Values: defence=%d, agility=%d, dribbling=%d, shooting=%d, sum=%d\n",
             //    talents.defence, talents.agility, talents.dribbling, talents.shooting, sum);
+    int defence_check = (talents.defence >= 1 && talents.defence <= MAX_TALENT_PER_SKILL);
+    int agility_check = (talents.agility >= 1 && talents.agility <= MAX_TALENT_PER_SKILL);
+    int dribbling_check = (talents.dribbling >= 1 && talents.dribbling <= MAX_TALENT_PER_SKILL);
+    int shooting_check = (talents.shooting >= 1 && talents.shooting <= MAX_TALENT_PER_SKILL);
+    int skills_check = (defence_check && agility_check && dribbling_check && shooting_check);
+
+    int sum = talents.defence + talents.agility + talents.dribbling + talents.shooting;
+    int sum_check = (sum <= MAX_TALENT_PER_PLAYER);
+
+    if (!(skills_check && sum_check)){
+        printf("ERROR: Invalid talents! Values: defence=%d, agility=%d, dribbling=%d, shooting=%d, sum=%d\n",
+            talents.defence, talents.agility, talents.dribbling, talents.shooting, sum);
+    }
 }
 
 
