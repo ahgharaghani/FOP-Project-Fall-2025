@@ -144,22 +144,22 @@ PlayerLogicFn get_change_state_logic(int team, int kit) {
  * ------------------------------------------------------------------------- */
 /* Team 1 */
 static struct Talents team1_talents[6] = {
-    {8, 5, 3, 4},
-    {7, 5, 4, 4},
-    {7, 5, 4, 4},
-    {4, 6, 5, 5},
-    {3, 5, 6, 6},
-    {2, 5, 5, 8},
+    {2, 5, 5, 8}, // Striker
+    {3, 5, 6, 6}, // Attacker
+    {4, 6, 5, 5}, // Midfielder
+    {7, 5, 4, 4}, // Defender
+    {7, 5, 4, 4}, // Defender
+    {8, 5, 3, 4}, // GoalKeeper
 };
 
 /* Team 2 */
 static struct Talents team2_talents[6] = {
-    {8, 5, 3, 4},
-    {7, 5, 4, 4},
-    {7, 5, 4, 4},
-    {4, 6, 5, 5},
-    {3, 5, 6, 6},
-    {2, 5, 5, 8},
+    {2, 5, 5, 8}, // Striker
+    {3, 5, 6, 6}, // Attacker
+    {4, 6, 5, 5}, // Midfielder
+    {7, 5, 4, 4}, // Defender
+    {7, 5, 4, 4}, // Defender
+    {8, 5, 3, 4}, // GoalKeeper
 };
 
 struct Talents get_talents(int team, int kit) {
@@ -177,22 +177,22 @@ struct Talents get_talents(int team, int kit) {
  * ------------------------------------------------------------------------- */
 /* Team 1 */
 static struct Vec2 team1_positions[6] = {
-    {300, CENTER_Y},
-    {250, CENTER_Y-150},
-    {200, CENTER_Y-75},
-    {150, CENTER_Y},
-    {200, CENTER_Y+75},
-    {250, CENTER_Y+150},
+    {300, CENTER_Y + 140},
+    {300, CENTER_Y - 140},
+    {330, CENTER_Y},
+    {180, CENTER_Y + 100},
+    {180, CENTER_Y - 100},
+    {PITCH_X + 30, CENTER_Y},
 };
 
 /* Team 2 */
 static struct Vec2 team2_positions[6] = {
-    {750, CENTER_Y},
-    {800, CENTER_Y-150},
-    {850, CENTER_Y-75},
-    {900, CENTER_Y},
-    {850, CENTER_Y+75},
-    {800, CENTER_Y+150},
+    {SCREEN_WIDTH - PITCH_MARGIN - 300, CENTER_Y + 140},
+    {SCREEN_WIDTH - PITCH_MARGIN - 300, CENTER_Y - 140},
+    {SCREEN_WIDTH - PITCH_MARGIN - 330, CENTER_Y},
+    {SCREEN_WIDTH - PITCH_MARGIN - 180, CENTER_Y + 100},
+    {SCREEN_WIDTH - PITCH_MARGIN - 180, CENTER_Y - 100},
+    {PITCH_X + PITCH_W - 30, CENTER_Y},
 };
 
 struct Vec2 get_positions(int team, int kit) {
