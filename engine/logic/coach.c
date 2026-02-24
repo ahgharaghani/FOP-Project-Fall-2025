@@ -88,7 +88,29 @@ void change_state_logic_1_1(struct Player *self, const struct Scene *scene) { (v
 void change_state_logic_1_2(struct Player *self, const struct Scene *scene) { (void)scene; }
 void change_state_logic_1_3(struct Player *self, const struct Scene *scene) { (void)scene; }
 void change_state_logic_1_4(struct Player *self, const struct Scene *scene) { (void)scene; }
-void change_state_logic_1_5(struct Player *self, const struct Scene *scene) { (void)scene; }
+void change_state_logic_1_5(struct Player *self, const struct Scene *scene) {
+    const struct Ball *ball = scene->ball;
+    const struct Player *possessor = ball->possessor;
+
+    if (possessor == self) {
+        self->state = SHOOTING; return;
+    }
+    if (possessor != NULL && possessor->team == self->team) {
+        self->state = MOVING; return;
+    }
+
+    float distance_from_ball = distance(self->position, ball->position);
+    bool in_own_half = ball_in_own_half(self, ball);
+    bool ball_in_goal_range = (ball->position.y > CENTER_Y - GOAL_HEIGHT/2 - 40.0f) && (ball->position.y < CENTER_Y + GOAL_HEIGHT/2 + 40.0f);
+    bool heading_towards_me = ball_approaching_own_goal(self, ball);
+    float ball_speed = hypotf(ball->velocity.x, ball->velocity.y);
+
+    if (distance_from_ball < 60.0f && in_own_half && (heading_towards_me || ball_speed < 20.0f) && ball_in_goal_range) {
+        self->state = INTERCEPTING; return;
+    }
+
+    self->state = MOVING;
+}
 
 /* Team 2 change_state logic */
 void change_state_logic_2_0(struct Player *self, const struct Scene *scene) { (void)scene; }
@@ -96,7 +118,29 @@ void change_state_logic_2_1(struct Player *self, const struct Scene *scene) { (v
 void change_state_logic_2_2(struct Player *self, const struct Scene *scene) { (void)scene; }
 void change_state_logic_2_3(struct Player *self, const struct Scene *scene) { (void)scene; }
 void change_state_logic_2_4(struct Player *self, const struct Scene *scene) { (void)scene; }
-void change_state_logic_2_5(struct Player *self, const struct Scene *scene) { (void)scene; }
+void change_state_logic_2_5(struct Player *self, const struct Scene *scene) {
+    const struct Ball *ball = scene->ball;
+    const struct Player *possessor = ball->possessor;
+
+    if (possessor == self) {
+        self->state = SHOOTING; return;
+    }
+    if (possessor != NULL && possessor->team == self->team) {
+        self->state = MOVING; return;
+    }
+
+    float distance_from_ball = distance(self->position, ball->position);
+    bool in_own_half = ball_in_own_half(self, ball);
+    bool ball_in_goal_range = (ball->position.y > CENTER_Y - GOAL_HEIGHT/2 - 40.0f) && (ball->position.y < CENTER_Y + GOAL_HEIGHT/2 + 40.0f);
+    bool heading_towards_me = ball_approaching_own_goal(self, ball);
+    float ball_speed = hypotf(ball->velocity.x, ball->velocity.y);
+
+    if (distance_from_ball < 60.0f && in_own_half && (heading_towards_me || ball_speed < 20.0f) && ball_in_goal_range) {
+        self->state = INTERCEPTING; return;
+    }
+
+    self->state = MOVING;
+}
 
 /* -------------------------------------------------------------------------
  * Lookup tables for factory
