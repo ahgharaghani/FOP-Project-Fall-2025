@@ -9,6 +9,17 @@
 #include <math.h>
 #include <stdbool.h>
 
+float distance(const Vec2 a, const Vec2 b);
+int own_goal_x(const struct Player *self);
+int opponent_goal_x(const struct Player *self);
+bool is_in_own_half(const struct Player *self);
+bool ball_in_own_half(const struct Player *self, const struct Ball *ball);
+bool ball_approaching_own_goal(const struct Player *self, const struct Ball *ball);
+void move_towards(struct Player *self, const struct Vec2 target, float speed);
+float clamp_speed(const float value, const float min, const float max);
+int closest_teammate_to_ball(const struct Scene *scene, const struct Player *self);
+bool is_closest_to_ball(const struct Scene *scene, const struct Player *self);
+
 // Set to false to let the other team use their own logic (if you implement it)
 // Set to true to test your logic on both teams
 bool coach_both_teams = true;
@@ -197,4 +208,68 @@ static struct Vec2 team2_positions[6] = {
 
 struct Vec2 get_positions(int team, int kit) {
     return (team == 1) ? team1_positions[kit] : team2_positions[kit];
+}
+
+float distance(const Vec2 a, const Vec2 b) {
+    float dx = a.x - b.x;
+    float dy = a.y - b.y;
+    return hypotf(dx, dy);
+}
+
+int own_goal_x(const struct Player *self) {
+    if (self->team == 1) return PITCH_X;
+    return PITCH_X + PITCH_W; 
+}
+
+int opponent_goal_x(const struct Player *self) {
+    if (self->team == 1) return PITCH_X + PITCH_W;
+    return PITCH_X; 
+}
+
+bool is_in_own_half(const struct Player *self) {
+    if (self->team == 1) return self->position.x < CENTER_X;
+    return self->position.x > CENTER_X;
+}
+
+bool ball_in_own_half(const struct Player *self, const struct Ball *ball) {
+    if (self->team == 1) return ball->position.x < CENTER_X;
+    return ball->position.x > CENTER_X;
+}
+
+bool ball_approaching_own_goal(const struct Player *self, const struct Ball *ball) {
+    if (self->team == 1) return ball->velocity.x < 0;
+    return ball->velocity.x > 0;
+}
+
+void move_towards(struct Player *self, const struct Vec2 target, float speed) {
+    float dx = self->position.x - target.x;
+    float dy = self->position.y - target.y;
+    float d = hypotf(dx, dy);
+    self->velocity.x = (dx/d) * speed;
+    self->velocity.y = (dy/d) * speed;
+}
+
+float clamp_speed(const float value, const float min, const float max) {
+    if (value < min) return min;
+    if (value > max) return max;
+    return value;
+}
+
+int closest_teammate_to_ball(const struct Scene *scene, const struct Player *self) {
+    const struct Ball *ball = scene->ball;
+    struct Player *players = (self->team == 1) ? scene->first_team->players : scene->second_team->players;
+    float d = distance(self->position, ball->position);
+    int kit = self->kit;
+    for (int i = 0; i < 6; i++) {
+        float others_d = distance(players[i].position, ball->position);
+        if (others_d < d) {
+            d = others_d;
+            kit = players[i].kit;
+        }
+    }
+    return kit;
+}
+
+bool is_closest_to_ball(const struct Scene *scene, const struct Player *self) {
+    return closest_teammate_to_ball(scene, self) == self->kit;
 }
