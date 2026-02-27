@@ -9,6 +9,10 @@
 #include <math.h>
 #include <stdbool.h>
 
+#define GOAL_LINE_OFFSET 30
+#define GOAL_TOP CENTER_Y - GOAL_HEIGHT / 2
+#define GOAL_BOTTOM CENTER_Y + GOAL_HEIGHT / 2
+
 float distance(const Vec2 a, const Vec2 b);
 int own_goal_x(const struct Player *self);
 int opponent_goal_x(const struct Player *self);
@@ -16,7 +20,7 @@ bool is_in_own_half(const struct Player *self);
 bool ball_in_own_half(const struct Player *self, const struct Ball *ball);
 bool ball_approaching_own_goal(const struct Player *self, const struct Ball *ball);
 void move_towards(struct Player *self, const struct Vec2 target, float speed);
-float clamp_speed(const float value, const float min, const float max);
+float clamp(const float value, const float min, const float max);
 int closest_teammate_to_ball(const struct Scene *scene, const struct Player *self);
 bool is_closest_to_ball(const struct Scene *scene, const struct Player *self);
 
@@ -50,13 +54,46 @@ bool coach_both_teams = true;
  * Thank you for your attention to this matter!
  * ------------------------------------------------------------------------- */
 
+void movement_logic_goalkeeper(struct Player *self, const struct Scene *scene) {
+    const struct Ball *ball = scene->ball;
+    float goal_line_x = (self->team == 1) ? PITCH_X + GOAL_LINE_OFFSET : SCREEN_WIDTH - PITCH_X - GOAL_LINE_OFFSET;
+    float max_gk_speed = self->talents.agility * MAX_PLAYER_VELOCITY / 10;
+
+    float target_x, target_y;
+    target_x = goal_line_x;
+    if (ball_in_own_half(self, ball)) {
+        target_y = ball->position.y;
+        target_y = clamp(target_y, GOAL_TOP - 20.0f, GOAL_BOTTOM + 20.0f); /* Set 20.0f for margin */
+    } else {
+        /* Ball is far. It's none of goalkeeper's concern */
+        target_y = CENTER_Y;
+    }
+
+    if (ball_approaching_own_goal(self, ball) && hypotf(ball->position.x, ball->position.y) > 50.0f) {
+        float time_to_goal;
+        if (self->team == 1 && ball->velocity.x < 0.0f) {
+            time_to_goal = (ball->position.x - PITCH_X) / (-ball->velocity.x); /* Time it would take for the ball to reach the goal line */
+        } else if (self->team == 2 && ball->velocity.x > 0.0f) {
+            time_to_goal = (SCREEN_WIDTH - PITCH_X - ball->position.x) / ball->velocity.x;
+        }
+        float target_y = ball->position.y + ball->velocity.y * time_to_goal;
+        target_y = clamp(target_y, GOAL_TOP - 20.0f, GOAL_BOTTOM + 20.0f);
+    }
+
+    struct Vec2 target = {.x = target_x, .y = target_y};
+    move_towards(self, target, max_gk_speed);
+    /* TODO: Implement separation of players */
+}
+
 /* Team 1 movement logic */
 void movement_logic_1_0(struct Player *self, const struct Scene *scene) { (void)scene; }
 void movement_logic_1_1(struct Player *self, const struct Scene *scene) { (void)scene; }
 void movement_logic_1_2(struct Player *self, const struct Scene *scene) { (void)scene; }
 void movement_logic_1_3(struct Player *self, const struct Scene *scene) { (void)scene; }
 void movement_logic_1_4(struct Player *self, const struct Scene *scene) { (void)scene; }
-void movement_logic_1_5(struct Player *self, const struct Scene *scene) { (void)scene; }
+void movement_logic_1_5(struct Player *self, const struct Scene *scene) {
+    movement_logic_goalkeeper(self, scene);
+}
 
 /* Team 2 movement logic */
 void movement_logic_2_0(struct Player *self, const struct Scene *scene) { (void)scene; }
@@ -64,7 +101,9 @@ void movement_logic_2_1(struct Player *self, const struct Scene *scene) { (void)
 void movement_logic_2_2(struct Player *self, const struct Scene *scene) { (void)scene; }
 void movement_logic_2_3(struct Player *self, const struct Scene *scene) { (void)scene; }
 void movement_logic_2_4(struct Player *self, const struct Scene *scene) { (void)scene; }
-void movement_logic_2_5(struct Player *self, const struct Scene *scene) { (void)scene; }
+void movement_logic_2_5(struct Player *self, const struct Scene *scene) {
+    movement_logic_goalkeeper(self, scene);
+}
 
 /* Team 1 shooting logic */
 void shooting_logic_1_0(struct Player *self, const struct Scene *scene) { (void)scene; }
@@ -82,13 +121,7 @@ void shooting_logic_2_3(struct Player *self, const struct Scene *scene) { (void)
 void shooting_logic_2_4(struct Player *self, const struct Scene *scene) { (void)scene; }
 void shooting_logic_2_5(struct Player *self, const struct Scene *scene) { (void)scene; }
 
-/* Team 1 change_state logic */
-void change_state_logic_1_0(struct Player *self, const struct Scene *scene) { (void)scene; }
-void change_state_logic_1_1(struct Player *self, const struct Scene *scene) { (void)scene; }
-void change_state_logic_1_2(struct Player *self, const struct Scene *scene) { (void)scene; }
-void change_state_logic_1_3(struct Player *self, const struct Scene *scene) { (void)scene; }
-void change_state_logic_1_4(struct Player *self, const struct Scene *scene) { (void)scene; }
-void change_state_logic_1_5(struct Player *self, const struct Scene *scene) {
+void change_state_logic_goalkeeper(struct Player *self, const struct Scene *scene) {
     const struct Ball *ball = scene->ball;
     const struct Player *possessor = ball->possessor;
 
@@ -112,6 +145,16 @@ void change_state_logic_1_5(struct Player *self, const struct Scene *scene) {
     self->state = MOVING;
 }
 
+/* Team 1 change_state logic */
+void change_state_logic_1_0(struct Player *self, const struct Scene *scene) { (void)scene; }
+void change_state_logic_1_1(struct Player *self, const struct Scene *scene) { (void)scene; }
+void change_state_logic_1_2(struct Player *self, const struct Scene *scene) { (void)scene; }
+void change_state_logic_1_3(struct Player *self, const struct Scene *scene) { (void)scene; }
+void change_state_logic_1_4(struct Player *self, const struct Scene *scene) { (void)scene; }
+void change_state_logic_1_5(struct Player *self, const struct Scene *scene) {
+    change_state_logic_goalkeeper(self, scene);
+}
+
 /* Team 2 change_state logic */
 void change_state_logic_2_0(struct Player *self, const struct Scene *scene) { (void)scene; }
 void change_state_logic_2_1(struct Player *self, const struct Scene *scene) { (void)scene; }
@@ -119,27 +162,7 @@ void change_state_logic_2_2(struct Player *self, const struct Scene *scene) { (v
 void change_state_logic_2_3(struct Player *self, const struct Scene *scene) { (void)scene; }
 void change_state_logic_2_4(struct Player *self, const struct Scene *scene) { (void)scene; }
 void change_state_logic_2_5(struct Player *self, const struct Scene *scene) {
-    const struct Ball *ball = scene->ball;
-    const struct Player *possessor = ball->possessor;
-
-    if (possessor == self) {
-        self->state = SHOOTING; return;
-    }
-    if (possessor != NULL && possessor->team == self->team) {
-        self->state = MOVING; return;
-    }
-
-    float distance_from_ball = distance(self->position, ball->position);
-    bool in_own_half = ball_in_own_half(self, ball);
-    bool ball_in_goal_range = (ball->position.y > CENTER_Y - GOAL_HEIGHT/2 - 40.0f) && (ball->position.y < CENTER_Y + GOAL_HEIGHT/2 + 40.0f);
-    bool heading_towards_me = ball_approaching_own_goal(self, ball);
-    float ball_speed = hypotf(ball->velocity.x, ball->velocity.y);
-
-    if (distance_from_ball < 60.0f && in_own_half && (heading_towards_me || ball_speed < 20.0f) && ball_in_goal_range) {
-        self->state = INTERCEPTING; return;
-    }
-
-    self->state = MOVING;
+    change_state_logic_goalkeeper(self, scene);
 }
 
 /* -------------------------------------------------------------------------
@@ -293,7 +316,7 @@ void move_towards(struct Player *self, const struct Vec2 target, float speed) {
     self->velocity.y = (dy/d) * speed;
 }
 
-float clamp_speed(const float value, const float min, const float max) {
+float clamp(const float value, const float min, const float max) {
     if (value < min) return min;
     if (value > max) return max;
     return value;
@@ -301,14 +324,14 @@ float clamp_speed(const float value, const float min, const float max) {
 
 int closest_teammate_to_ball(const struct Scene *scene, const struct Player *self) {
     const struct Ball *ball = scene->ball;
-    struct Player *players = (self->team == 1) ? scene->first_team->players : scene->second_team->players;
+    struct Player **players = (self->team == 1) ? scene->first_team->players : scene->second_team->players;
     float d = distance(self->position, ball->position);
     int kit = self->kit;
     for (int i = 0; i < 6; i++) {
-        float others_d = distance(players[i].position, ball->position);
+        float others_d = distance(players[i]->position, ball->position);
         if (others_d < d) {
             d = others_d;
-            kit = players[i].kit;
+            kit = players[i]->kit;
         }
     }
     return kit;
