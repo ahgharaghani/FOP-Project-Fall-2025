@@ -105,13 +105,63 @@ void movement_logic_2_5(struct Player *self, const struct Scene *scene) {
     movement_logic_goalkeeper(self, scene);
 }
 
+void shooting_logic_goalkeeper(struct Player *self, const struct Scene *scene) {
+    struct Ball *ball = scene->ball;
+
+    /* Find best teammate to pass to */
+
+    struct Player *best_target = NULL;
+    float best_distance_to_opponent_goal = INFINITY;
+    struct Player **teammates = (self->team == 1) ? scene->first_team->players : scene->second_team->players;
+    struct Player **opponnents = (self->team == 1) ? scene->second_team->players : scene->first_team->players;
+
+    for (int i = 0; i < 5; i++) {
+        float d = distance(self->position, teammates[i]->position);
+        bool opponenet_nearby = false;
+        for (int j = 0; j < 6; j++) {
+            if (distance(teammates[i]->position, opponnents[j]->position) < 25.0f) opponenet_nearby = true;
+        }
+        if (!opponenet_nearby && d < best_distance_to_opponent_goal) {
+            best_distance_to_opponent_goal = d;
+            best_target = teammates[i];
+        }
+    }
+
+    if (best_target != NULL) {
+        float dx = best_target->position.x - self->position.x;
+        float dy = best_target->position.y - self->position.y;
+        
+        float max_ball_speed = self->talents.agility * MAX_BALL_VELOCITY / 10;
+        
+        ball->velocity.x = (dx / best_distance_to_opponent_goal) * max_ball_speed;
+        ball->velocity.y = (dy / best_distance_to_opponent_goal) * max_ball_speed;
+    } else {
+        /* No good target, simply shoot it forward */
+        if (self->team == 1) {
+            ball->velocity.x = 50.0f;
+            ball->velocity.y = 0;
+        } else {
+            ball->velocity.x = -50.0f;
+            ball->velocity.y = 0;
+        }
+    }
+
+    if (self->team == 1 && ball->velocity.x < 0) {
+        ball->velocity.x = fabsf(ball->velocity.x);
+    } else if (self->team == 2 && ball->velocity.x > 0) {
+        ball->velocity.x = -fabsf(ball->velocity.x);
+    }
+}
+
 /* Team 1 shooting logic */
 void shooting_logic_1_0(struct Player *self, const struct Scene *scene) { (void)scene; }
 void shooting_logic_1_1(struct Player *self, const struct Scene *scene) { (void)scene; }
 void shooting_logic_1_2(struct Player *self, const struct Scene *scene) { (void)scene; }
 void shooting_logic_1_3(struct Player *self, const struct Scene *scene) { (void)scene; }
 void shooting_logic_1_4(struct Player *self, const struct Scene *scene) { (void)scene; }
-void shooting_logic_1_5(struct Player *self, const struct Scene *scene) { (void)scene; }
+void shooting_logic_1_5(struct Player *self, const struct Scene *scene) {
+    shooting_logic_goalkeeper(self, scene);
+}
 
 /* Team 2 shooting logic */
 void shooting_logic_2_0(struct Player *self, const struct Scene *scene) { (void)scene; }
@@ -119,7 +169,9 @@ void shooting_logic_2_1(struct Player *self, const struct Scene *scene) { (void)
 void shooting_logic_2_2(struct Player *self, const struct Scene *scene) { (void)scene; }
 void shooting_logic_2_3(struct Player *self, const struct Scene *scene) { (void)scene; }
 void shooting_logic_2_4(struct Player *self, const struct Scene *scene) { (void)scene; }
-void shooting_logic_2_5(struct Player *self, const struct Scene *scene) { (void)scene; }
+void shooting_logic_2_5(struct Player *self, const struct Scene *scene) {
+    shooting_logic_goalkeeper(self, scene);
+}
 
 void change_state_logic_goalkeeper(struct Player *self, const struct Scene *scene) {
     const struct Ball *ball = scene->ball;
