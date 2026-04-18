@@ -197,6 +197,10 @@ void change_state_logic_goalkeeper(struct Player *self, const struct Scene *scen
     self->state = MOVING;
 }
 
+void change_state_logic_striker(struct Player *self, const struct Scene *scene) {
+
+}
+
 /* Team 1 change_state logic */
 void change_state_logic_1_0(struct Player *self, const struct Scene *scene) { (void)scene; }
 void change_state_logic_1_1(struct Player *self, const struct Scene *scene) { (void)scene; }
